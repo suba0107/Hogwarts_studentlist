@@ -1,0 +1,204 @@
+* {
+  margin: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --gryffindor-color1: #740001;
+  --gryffindor-color2: #eeba30;
+  --gryffindor-color-hover: #eebb30b7;
+  --gryffindor-background: #1b0101;
+  --ravenclaw-color1: #0e1a40;
+  --ravenclaw-color2: #946b2d;
+  --ravenclaw-color-hover: #946b2db0;
+  --ravenclaw-background: #050e1a;
+  --hufflepuff-color1: #ecb939;
+  --hufflepuff-color2: #000000;
+  --hufflepuff-color-hover: #ecb93994;
+  --hufflepuff-background: #1d1d1d;
+  --slytherin-color1: #1a472a;
+  --slytherin-color2: #aaaaaa;
+  --slytherin-color-hover: #aaaaaaa1;
+  --slytherin-background: #011b11;
+  --main-font: "Jim Nightshade", cursive;
+}
+
+body {
+  background-image: url("background.jpg");
+  background-size: cover;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--main-font);
+}
+
+h1 {
+  font-size: 3rem;
+  text-align: center;
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+}
+
+li {
+  list-style-type: none;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+li:hover {
+  background-color: rgba(250, 250, 250, 0.548);
+}
+
+h1 {
+  margin: 1rem;
+}
+
+#list {
+  display: grid;
+  margin: 0 auto;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-gap: 20px;
+  padding: 2vw;
+}
+
+.item {
+  margin: 2rem;
+}
+
+#popup {
+  position: fixed;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  display: none;
+  overflow: hidden;
+  text-align: center;
+  flex-direction: column;
+  align-items: center;
+}
+.content {
+  width: 80vw;
+  min-height: 80vh;
+  margin: 4rem auto;
+  padding: 10px;
+}
+
+.close {
+  position: absolute;
+  width: 80vw;
+  background: transparent;
+  font-size: 2rem;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  z-index: 200;
+  text-align: right;
+  padding-right: 2rem;
+  margin: 5rem auto;
+}
+
+.content:hover {
+  cursor: pointer;
+}
+
+.content[data-selected="gryffindor"] {
+  padding: 1rem;
+  color: var(--gryffindor-color2);
+  background-color: var(--gryffindor-background);
+  border-width: 5px;
+  border-style: solid;
+  border-image: linear-gradient(
+      to left,
+      var(--gryffindor-color1),
+      var(--gryffindor-color2)
+    )
+    30 stretch;
+}
+
+.content[data-selected="ravenclaw"] {
+  padding: 1rem;
+  color: var(--ravenclaw-color2);
+  border-width: 5px;
+  border-style: solid;
+  border-image: linear-gradient(
+      to left,
+      var(--ravenclaw-color1),
+      var(--ravenclaw-color2)
+    )
+    30 stretch;
+  background-color: var(--ravenclaw-background);
+}
+
+.content[data-selected="slytherin"] {
+  padding: 1rem;
+  border-width: 5px;
+  border-style: solid;
+  color: var(--slytherin-color2);
+  background-color: var(--slytherin-background);
+  border-image: linear-gradient(
+      to left,
+      var(--slytherin-color1),
+      var(--slytherin-color2)
+    )
+    30 stretch;
+}
+
+.content[data-selected="hufflepuff"] {
+  padding: 1rem;
+  color: var(--hufflepuff-color1);
+  background-color: var(--hufflepuff-background);
+  border-width: 5px;
+  border-style: solid;
+  border-image: linear-gradient(
+      to left,
+      var(--hufflepuff-color1),
+      var(--hufflepuff-color2)
+    )
+    30 stretch;
+}
+
+.close[data-selected="gryffindor"] {
+  color: var(--gryffindor-color2);
+}
+
+.close[data-selected="ravenclaw"] {
+  color: var(--ravenclaw-color2);
+}
+
+.close[data-selected="slytherin"] {
+  color: var(--slytherin-color2);
+}
+
+.close[data-selected="hufflepuff"] {
+  color: var(--hufflepuff-color1);
+}
+
+.close[data-selected="gryffindor"]:hover {
+  color: var(--gryffindor-color-hover);
+}
+
+.close[data-selected="ravenclaw"]:hover {
+  color: var(--ravenclaw-color-hover);
+}
+
+.close[data-selected="slytherin"]:hover {
+  color: var(--slytherin-color-hover);
+}
+
+.close[data-selected="hufflepuff"]:hover {
+  color: var(--hufflepuff-color-hover);
+}
+.crest {
+  width: 10vw;
+  margin-top: 1rem;
+}
