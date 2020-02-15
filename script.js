@@ -2,6 +2,15 @@ let students;
 const list = document.querySelector("#list");
 const temp = document.querySelector("template");
 let studentHouse;
+
+const Student = {
+  firstname: "",
+  lastname: "",
+  middlename: "",
+  nickname: "",
+  image: "",
+  house: ""
+};
 document.addEventListener("DOMContentLoaded", getJson);
 
 async function getJson() {
@@ -25,9 +34,7 @@ function showList() {
 
 function showSingle(student) {
   document.querySelector("#popup").style.display = "flex";
-  document
-    .querySelector("#popup .close")
-    .addEventListener("click", closeSingle);
+  document.querySelector("#popup .close").addEventListener("click", closeSingle);
   document.querySelector(".name").textContent = student.fullname;
   document.querySelector(".house").textContent = student.house;
   studentHouse = student.house.toLowerCase();
