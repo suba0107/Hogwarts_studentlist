@@ -31,23 +31,23 @@
         <p id="numberShown">The list is showing x students</p>
         <div id="filterGroup">
           <p>Filter by:</p>
-          <button class="filter" data-action="filter" data-filter="gryffindor">Gryffindor</button>
-          <button class="filter" data-action="filter" data-filter="ravenclaw">Ravenclaw</button>
-          <button class="filter" data-action="filter" data-filter="hufflepuff">Hufflepuff</button>
-          <button class="filter" data-action="filter" data-filter="slytherin">Slytherin</button>
+          <button class="filter" data-action="filter" data-type="house" data-filter="gryffindor">Gryffindor</button>
+          <button class="filter" data-action="filter" data-type="house" data-filter="ravenclaw">Ravenclaw</button>
+          <button class="filter" data-action="filter" data-type="house" data-filter="hufflepuff">Hufflepuff</button>
+          <button class="filter" data-action="filter" data-type="house" data-filter="slytherin">Slytherin</button>
         </div>
         <div id="shown">
           <p>Show:</p>
-          <button class="filter" data-action="filter" data-filter="expelled">Expelled students</button>
-          <button class="filter" data-action="filter" data-filter="nonExpelled">Show attending students</button>
-          <button class="filter" data-action="filter" data-filter="nonExpelled">Show total</button>
+          <button class="filter" data-action="filter" data-type="status" data-filter="*">Expelled students</button>
+          <button class="filter" data-action="filter" data-type="status" data-filter="*">Attending students</button>
+          <button class="filter" data-action="filter" data-type="status" data-filter="*">Total</button>
         </div>
 
         <div id="sorting">
           <p>Sort by:</p>
-          <button data-action="sort" data-sort-direction="asc" data-sort="star">First name</button>
-          <button data-action="sort" data-sort-direction="asc" data-sort="name">Last name</button>
-          <button data-action="sort" data-sort-direction="asc" data-sort="type">House</button>
+          <button data-action="sort" data-sort-direction="asc" data-sort="firstName">First name</button>
+          <button data-action="sort" data-sort-direction="asc" data-sort="lastName">Last name</button>
+          <button data-action="sort" data-sort-direction="asc" data-sort="house">House</button>
         </div>
       </article>
       <ul id="list"></ul>

@@ -5,29 +5,52 @@ const HTML = {};
 
 let studentHouse;
 
+const Student = {
+  firstname: "",
+  lastname: "",
+  middlename: "",
+  nickname: "",
+  image: "",
+  house: ""
+};
+
 function start() {
   HTML.list = document.querySelector("#list");
   HTML.temp = document.querySelector("template");
   HTML.allStudents = [];
+  HTML.currentStudentList = [];
   HTML.search = " ";
-  HTML.Student = {
-    firstname: "",
-    lastname: "",
-    middlename: "",
-    nickname: "",
-    image: "",
-    house: ""
-  };
-  // TODO: Add event-listeners to filter and sort buttons
-  document.querySelectorAll(".filter").forEach(elm => {
-    elm.addEventListener("click", function() {
-      const button = this.dataset.filter;
-      filterAnimalsByType(button);
-    });
-  });
 
+  document.querySelectorAll(".filter").forEach(elm => {
+    elm.addEventListener("click", setFilterButton);
+  });
   getJson();
 }
+
+function setFilterButton() {
+  const button = this.dataset.filter;
+  const type = this.dataset.type;
+  filterStudents(button, type);
+}
+
+function filterStudents(filter, type) {
+  const result = HTML.allStudents.filter(filterFunction);
+  // console.log(filter);
+  function filterFunction(student) {
+    console.log(`hej ${student.house}`);
+    const filterType = student[type];
+    if (filterType == filter) {
+      return true;
+    } else if (filter === "*") {
+      return true;
+    }
+  }
+  HTML.currentStudentList = result;
+  displayList(HTML.currentStudentList);
+  console.log(HTML.currentStudentList);
+  return result;
+}
+
 async function getJson() {
   let jsonData = await fetch("https://petlatkea.dk/2020/hogwarts/students.json");
   let jsonObjects = await jsonData.json();
@@ -38,7 +61,7 @@ async function getJson() {
 
 function prepareObjects(jsonObjects) {
   jsonObjects.forEach(jsonObject => {
-    const student = Object.create(HTML.Student);
+    const student = Object.create(Student);
     HTML.allStudents.push(student);
     const fullName = jsonObject.fullname;
     let house = jsonObject.house;
@@ -83,7 +106,7 @@ function prepareObjects(jsonObjects) {
     student.lastname = lastName;
     student.middlename = middleName;
     student.nickname = nickName;
-    student.house = house;
+    student.house = house.toLowerCase();
     if (student.middlename === "") {
       delete student.middlename;
     }
@@ -93,13 +116,14 @@ function prepareObjects(jsonObjects) {
     if (student.lastname === "") {
       delete student.lastName;
     }
+    console.log(student);
+    displayList(HTML.allStudents);
   });
-  displayList();
 }
 
-function displayList() {
+function displayList(student) {
   document.querySelector("#list").innerHTML = "";
-  HTML.allStudents.forEach(displayStudent);
+  student.forEach(displayStudent);
 }
 
 function displayStudent(student) {
