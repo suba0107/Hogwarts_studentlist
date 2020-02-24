@@ -12,6 +12,8 @@ const Student = {
   nickname: "",
   image: "",
   house: ""
+
+  //TODO: Add prefect status and inquisitorial squad
 };
 
 function start() {
@@ -159,6 +161,9 @@ function displayStudent(student) {
   //set clone data
   clone.querySelector(".name").textContent = student.firstname + " " + student.lastname;
   clone.querySelector(".house").textContent = student.house;
+  // TODO: Show prefect add and remove button
+  // TODO addEventlisteners to button
+
   //append clone to list
   HTML.list.appendChild(clone);
   list.lastElementChild.addEventListener("click", () => {
