@@ -33,6 +33,32 @@ function setFilterButton() {
   filterStudents(button, type);
 }
 
+function setSortValue() {
+  //TO DO: get the value(s) from the sort button clicked on
+  // ==> what to sort on
+  // ==> which direction
+}
+
+function toggleSortArrows() {
+  //TO DO: Receive button and direction values
+  //if not already sorted, set button values on every sort button to "sort" (call a clear function)
+  //set clicked button to "sorted"
+  //Set element as sorted
+  // if already sorted and direction is set to "asc", set diretion to "desc" - else set direction to asc
+}
+
+function clearAllSort() {
+  // set all buttons to "sort" instead of "sorted"
+}
+
+function sortFunction() {
+  //Sort array using a compare function
+
+  function compareFunction(a, b) {
+    // if statements based on direction
+  }
+}
+
 function filterStudents(filter, type) {
   const result = HTML.allStudents.filter(filterFunction);
   // console.log(filter);
@@ -48,8 +74,9 @@ function filterStudents(filter, type) {
   HTML.currentStudentList = result;
   displayList(HTML.currentStudentList);
   console.log(HTML.currentStudentList);
-  return result;
 }
+
+function sortStudents() {}
 
 async function getJson() {
   let jsonData = await fetch("https://petlatkea.dk/2020/hogwarts/students.json");
