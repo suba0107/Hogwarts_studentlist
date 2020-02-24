@@ -62,6 +62,40 @@ h1 {
   margin: 1rem;
 }
 
+#list_information {
+  display: flex;
+  flex-wrap: wrap;
+  grid-gap: 1rem;
+  justify-content: space-between;
+}
+#numberShown {
+  margin: 1rem;
+  text-align: center;
+  order: 2;
+  min-width: 30%;
+}
+
+#filterGroup {
+  margin: 1rem;
+  text-align: right;
+  order: 3;
+  width: 30%;
+}
+#shown {
+  margin: 1rem;
+  text-align: left;
+  order: 4;
+  width: 100%;
+  text-align: right;
+}
+
+#sorting {
+  grid-column-start: 1;
+  grid-row-start: 1;
+  margin: 1rem;
+  order: 1;
+  width: 33.3%;
+}
 #list {
   display: grid;
   margin: 0 auto;
@@ -117,12 +151,7 @@ h1 {
   background-color: var(--gryffindor-background);
   border-width: 5px;
   border-style: solid;
-  border-image: linear-gradient(
-      to left,
-      var(--gryffindor-color1),
-      var(--gryffindor-color2)
-    )
-    30 stretch;
+  border-image: linear-gradient(to left, var(--gryffindor-color1), var(--gryffindor-color2)) 30 stretch;
 }
 
 .content[data-selected="ravenclaw"] {
@@ -130,12 +159,7 @@ h1 {
   color: var(--ravenclaw-color2);
   border-width: 5px;
   border-style: solid;
-  border-image: linear-gradient(
-      to left,
-      var(--ravenclaw-color1),
-      var(--ravenclaw-color2)
-    )
-    30 stretch;
+  border-image: linear-gradient(to left, var(--ravenclaw-color1), var(--ravenclaw-color2)) 30 stretch;
   background-color: var(--ravenclaw-background);
 }
 
@@ -145,12 +169,7 @@ h1 {
   border-style: solid;
   color: var(--slytherin-color2);
   background-color: var(--slytherin-background);
-  border-image: linear-gradient(
-      to left,
-      var(--slytherin-color1),
-      var(--slytherin-color2)
-    )
-    30 stretch;
+  border-image: linear-gradient(to left, var(--slytherin-color1), var(--slytherin-color2)) 30 stretch;
 }
 
 .content[data-selected="hufflepuff"] {
@@ -159,12 +178,7 @@ h1 {
   background-color: var(--hufflepuff-background);
   border-width: 5px;
   border-style: solid;
-  border-image: linear-gradient(
-      to left,
-      var(--hufflepuff-color1),
-      var(--hufflepuff-color2)
-    )
-    30 stretch;
+  border-image: linear-gradient(to left, var(--hufflepuff-color1), var(--hufflepuff-color2)) 30 stretch;
 }
 
 .close[data-selected="gryffindor"] {

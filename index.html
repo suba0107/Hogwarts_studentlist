@@ -25,7 +25,31 @@
     <header>
       <h1>Student list at Hogwarts</h1>
     </header>
+
     <section id="list_section">
+      <article id="list_information">
+        <p id="numberShown">The list is showing x students</p>
+        <div id="filterGroup">
+          <p>Filter by:</p>
+          <button class="filter" data-action="filter" data-filter="gryffindor">Gryffindor</button>
+          <button class="filter" data-action="filter" data-filter="ravenclaw">Ravenclaw</button>
+          <button class="filter" data-action="filter" data-filter="hufflepuff">Hufflepuff</button>
+          <button class="filter" data-action="filter" data-filter="slytherin">Slytherin</button>
+        </div>
+        <div id="shown">
+          <p>Show:</p>
+          <button class="filter" data-action="filter" data-filter="expelled">Expelled students</button>
+          <button class="filter" data-action="filter" data-filter="nonExpelled">Show attending students</button>
+          <button class="filter" data-action="filter" data-filter="nonExpelled">Show total</button>
+        </div>
+
+        <div id="sorting">
+          <p>Sort by:</p>
+          <button data-action="sort" data-sort-direction="asc" data-sort="star">First name</button>
+          <button data-action="sort" data-sort-direction="asc" data-sort="name">Last name</button>
+          <button data-action="sort" data-sort-direction="asc" data-sort="type">House</button>
+        </div>
+      </article>
       <ul id="list"></ul>
     </section>
 

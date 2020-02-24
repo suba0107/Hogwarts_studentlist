@@ -5,15 +5,6 @@ const HTML = {};
 
 let studentHouse;
 
-const Student = {
-  firstname: "",
-  lastname: "",
-  middlename: "",
-  nickname: "",
-  image: "",
-  house: ""
-};
-
 function start() {
   HTML.list = document.querySelector("#list");
   HTML.temp = document.querySelector("template");
@@ -27,6 +18,14 @@ function start() {
     image: "",
     house: ""
   };
+  // TODO: Add event-listeners to filter and sort buttons
+  document.querySelectorAll(".filter").forEach(elm => {
+    elm.addEventListener("click", function() {
+      const button = this.dataset.filter;
+      filterAnimalsByType(button);
+    });
+  });
+
   getJson();
 }
 async function getJson() {
