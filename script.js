@@ -20,7 +20,8 @@ const settings = {
   filterType: null,
   filter: null,
   sortBy: "firstname",
-  sortDir: "asc"
+  sortDir: "asc",
+  list: "attending"
 };
 
 function start() {
@@ -30,10 +31,10 @@ function start() {
   HTML.currentStudentList = [];
   HTML.expelledStudentList = [];
   HTML.search = " ";
-
-  document.querySelectorAll(".filter").forEach(elm => {
+  document.querySelectorAll(`[data-action="filter"]`).forEach(elm => {
     elm.addEventListener("click", setFilterButton);
   });
+
   document.querySelectorAll(`[data-action="sort"]`).forEach(elm => {
     elm.addEventListener("click", setSortValue);
   });
@@ -41,17 +42,31 @@ function start() {
 }
 
 function buildList() {
-  let currentList = HTML.currentStudentList;
-  currentList = filterStudents(settings.filter, settings.filterType);
-  console.log(currentList);
+  let currentList = filterStudents(settings.filter, settings.filterType);
   currentList = sortStudents(settings.sortBy);
-
   displayList(currentList);
+}
+
+function expelStudent(student) {
+  const allStudents = HTML.allStudents;
+  const expelledArray = HTML.expelledStudentList;
+  expelledArray.push(student);
+  console.log(HTML.expelledStudentList);
+  const index = allStudents.indexOf(student);
+  allStudents.splice(index, 1);
+  console.log("expel");
+  buildList();
 }
 
 function setFilterButton() {
   settings.filter = this.dataset.filter;
   settings.filterType = this.dataset.type;
+  buildList();
+}
+
+function setShowButton() {
+  // settings.filter = this.dataset.filter;
+  // settings.filterType = this.dataset.type;
   buildList();
 }
 
@@ -118,7 +133,6 @@ function sortStudents(sortBy) {
 
 function clearAllSort() {
   // set all buttons to "sort" instead of "sorted"
-  console.log("clearAllSort");
 
   document.querySelectorAll(`[data-action="sorted"]`).forEach(botton => {
     botton.dataset.action = "sort";
@@ -126,10 +140,18 @@ function clearAllSort() {
 }
 
 function filterStudents(filter, type) {
-  const result = HTML.allStudents.filter(filterFunction);
+  if (settings.filter === "expelled") {
+    console.log("expelled");
+    const result = HTML.expelledStudentList;
+    HTML.currentStudentList = result;
+    return result;
+  } else {
+    const result = HTML.allStudents.filter(filterFunction);
+    HTML.currentStudentList = result;
+    return result;
+  }
   // console.log(filter);
   function filterFunction(student) {
-    console.log(`hej ${student.house}`);
     const filterType = student[type];
     if (filterType == filter) {
       return true;
@@ -137,8 +159,6 @@ function filterStudents(filter, type) {
       return true;
     }
   }
-  HTML.currentStudentList = result;
-  return result;
 }
 
 async function getJson() {
@@ -223,7 +243,6 @@ function displayImage(firstname, lastname) {
   }
   let filename = `${lastName}_${firstName}`;
 
-  console.log(filename);
   return filename;
 }
 
@@ -238,17 +257,19 @@ function displayStudent(student) {
   //set clone data
   clone.querySelector(".name").textContent = student.firstname + " " + student.lastname;
   clone.querySelector(".house").textContent = student.house;
-  console.log(student.image);
 
   // TODO: Show prefect add and remove button
   // TODO addEventlisteners to button
+  clone.querySelector(".item").addEventListener("click", function clickList() {
+    showSingle(student);
+    themeSelector(student);
+    clone.querySelectorAll(".item").forEach(elm => {
+      elm.removeEventListener("click", clickList);
+    });
+  });
 
   //append clone to list
   HTML.list.appendChild(clone);
-  list.lastElementChild.addEventListener("click", () => {
-    showSingle(student);
-    themeSelector(student);
-  });
 }
 
 function showSingle(student) {
@@ -259,6 +280,13 @@ function showSingle(student) {
   document.querySelector(".image").src = `images/${student.image}.png`;
 
   document.querySelector(".house").textContent = student.house;
+  document.querySelector(".expel").addEventListener("click", function expel() {
+    closeSingle();
+    document.querySelector(".expel").removeEventListener("click", expel);
+    setTimeout(() => {
+      expelStudent(student);
+    }, 1000);
+  });
 }
 
 function closeSingle() {
