@@ -12,7 +12,7 @@ const Student = {
   nickname: "",
   image: "",
   house: "",
-  inq_squad: ""
+  inq_squad: "false"
   //TODO: Add prefect status and inquisitorial squad
 };
 
@@ -218,6 +218,7 @@ function prepareObjects(jsonObjects) {
     student.lastname = lastName;
     student.middlename = middleName;
     student.nickname = nickName;
+
     student.house = house.toLowerCase();
     if (student.middlename === "") {
       delete student.middlename;
@@ -229,6 +230,10 @@ function prepareObjects(jsonObjects) {
       delete student.lastName;
     }
     //console.log(student);
+
+    if (student.house === "slytherin") {
+      student.inq_squad = Student.inq_squad;
+    }
     displayList(HTML.allStudents);
   });
 }
@@ -278,7 +283,6 @@ function showSingle(student) {
   document.querySelector(".fullname").textContent = student.firstname + " " + student.nickname + " " + student.middlename + " " + student.lastname;
 
   document.querySelector(".image").src = `images/${student.image}.png`;
-
   document.querySelector(".house").textContent = student.house;
   document.querySelector(".expel").addEventListener("click", function expel() {
     closeSingle();
@@ -287,6 +291,39 @@ function showSingle(student) {
       expelStudent(student);
     }, 1000);
   });
+
+  squadHandler(student);
+}
+
+function squadHandler(student) {
+  if (student.hasOwnProperty("inq_squad") === true) {
+    document.querySelector("[data-field=inqSquad]").style.display = "inline-block";
+    console.log("Hejhej");
+
+    if (student.inq_squad == true) {
+      document.querySelector("[data-field=inqSquad]").textContent = "Remove from the inquisitorial squad";
+    } else {
+      console.log("hej");
+      document.querySelector("[data-field=inqSquad]").textContent = "Add to the inquisitorial squad";
+    }
+    document.querySelector(`[data-field="inqSquad"]`).addEventListener("click", function clickSquad() {
+      document.querySelector(`[data-field="inqSquad"]`).removeEventListener("click", clickSquad);
+      squadToggle(student);
+    });
+  } else {
+    document.querySelector("[data-field=inqSquad]").style.display = "none";
+  }
+}
+
+function squadToggle(student) {
+  if (student.inq_squad == true) {
+    student.inq_squad = false;
+    console.log("false");
+  } else {
+    student.inq_squad = true;
+  }
+
+  showSingle(student);
 }
 
 function closeSingle() {
