@@ -16,6 +16,13 @@ const Student = {
   //TODO: Add prefect status and inquisitorial squad
 };
 
+const settings = {
+  filterType: null,
+  filter: null,
+  sortBy: "firstname",
+  sortDir: "asc"
+};
+
 function start() {
   HTML.list = document.querySelector("#list");
   HTML.temp = document.querySelector("template");
@@ -26,39 +33,95 @@ function start() {
   document.querySelectorAll(".filter").forEach(elm => {
     elm.addEventListener("click", setFilterButton);
   });
+  document.querySelectorAll(`[data-action="sort"]`).forEach(elm => {
+    elm.addEventListener("click", setSortValue);
+  });
   getJson();
 }
 
+function buildList() {
+  let currentList = HTML.currentStudentList;
+  currentList = filterStudents(settings.filter, settings.filterType);
+  console.log(currentList);
+  currentList = sortStudents(settings.sortBy);
+
+  displayList(currentList);
+}
+
 function setFilterButton() {
-  const button = this.dataset.filter;
-  const type = this.dataset.type;
-  filterStudents(button, type);
+  settings.filter = this.dataset.filter;
+  settings.filterType = this.dataset.type;
+  buildList();
 }
 
 function setSortValue() {
   //TO DO: get the value(s) from the sort button clicked on
   // ==> what to sort on
   // ==> which direction
+
+  const sortBy = this.dataset.sort;
+  settings.sortBy = sortBy;
+
+  const sortDir = this.dataset.sortDirection;
+  settings.sortDir = sortDir;
+
+  toggleSortArrows(sortBy);
 }
 
-function toggleSortArrows() {
+function toggleSortArrows(sortBy) {
   //TO DO: Receive button and direction values
-  //if not already sorted, set button values on every sort button to "sort" (call a clear function)
+  //if this button is not already sorted, set button values on every sort button to "sort" (call a clear function)
   //set clicked button to "sorted"
-  //Set element as sorted
   // if already sorted and direction is set to "asc", set diretion to "desc" - else set direction to asc
+
+  let sortName = document.querySelector(`[data-sort="${sortBy}"]`);
+  if (sortName.dataset.action === "sort") {
+    clearAllSort();
+    sortName.dataset.action = "sorted";
+  } else {
+    if (sortName.dataset.sortDirection === "asc") {
+      sortName.dataset.sortDirection = "desc";
+      settings.sortDir = "desc";
+    } else {
+      sortName.dataset.sortDirection = "asc";
+      settings.sortDir = "asc";
+    }
+  }
+  buildList();
+}
+
+function sortStudents(sortBy) {
+  //Sort array using a compare function
+  let sortName = document.querySelector(`[data-sort="${sortBy}"]`);
+  const sortList = HTML.currentStudentList.sort(compareFunction);
+
+  function compareFunction(a, b) {
+    if (sortName.dataset.sortDirection == "asc") {
+      if (a[sortBy] < b[sortBy]) {
+        return -1;
+      } else {
+        return 1;
+      }
+    } else {
+      if (a[sortBy] > b[sortBy]) {
+        return -1;
+      } else {
+        return 1;
+      }
+    }
+  }
+
+  return sortList;
+  // filterStudents(button, type);
 }
 
 function clearAllSort() {
   // set all buttons to "sort" instead of "sorted"
-}
+  console.log("clearAllSort");
 
-function sortFunction() {
-  //Sort array using a compare function
-
-  function compareFunction(a, b) {
-    // if statements based on direction
-  }
+  document.querySelectorAll(`[data-action="sorted"]`).forEach(botton => {
+    botton.dataset.action = "sort";
+  });
 }
 
 function filterStudents(filter, type) {
@@ -74,11 +137,8 @@ function filterStudents(filter, type) {
     }
   }
   HTML.currentStudentList = result;
-  displayList(HTML.currentStudentList);
-  console.log(HTML.currentStudentList);
+  return result;
 }
-
-function sortStudents() {}
 
 async function getJson() {
   let jsonData = await fetch("https://petlatkea.dk/2020/hogwarts/students.json");
@@ -145,7 +205,7 @@ function prepareObjects(jsonObjects) {
     if (student.lastname === "") {
       delete student.lastName;
     }
-    console.log(student);
+    //console.log(student);
     displayList(HTML.allStudents);
   });
 }
