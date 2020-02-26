@@ -192,6 +192,8 @@ function prepareObjects(jsonObjects) {
     const middleNameJoin = fullNameArray.join();
     const middleName = middleNameJoin.replace(",", " ");
     const nickName = nickNameTrimmed.charAt(0).toUpperCase() + nickNameTrimmed.slice(1);
+
+    student.image = displayImage(firstName, lastName);
     student.firstname = firstName;
     student.lastname = lastName;
     student.middlename = middleName;
@@ -211,6 +213,20 @@ function prepareObjects(jsonObjects) {
   });
 }
 
+function displayImage(firstname, lastname) {
+  const lastName = lastname.toLowerCase();
+  let firstName = firstname[0].toLowerCase();
+  if (firstname === "Padma") {
+    firstName = "padme";
+  } else if (firstname === "Parvati") {
+    firstName = "parvati";
+  }
+  let filename = `${lastName}_${firstName}`;
+
+  console.log(filename);
+  return filename;
+}
+
 function displayList(student) {
   document.querySelector("#list").innerHTML = "";
   student.forEach(displayStudent);
@@ -222,6 +238,8 @@ function displayStudent(student) {
   //set clone data
   clone.querySelector(".name").textContent = student.firstname + " " + student.lastname;
   clone.querySelector(".house").textContent = student.house;
+  console.log(student.image);
+
   // TODO: Show prefect add and remove button
   // TODO addEventlisteners to button
 
@@ -237,6 +255,8 @@ function showSingle(student) {
   document.querySelector("#popup").style.display = "flex";
   document.querySelector("#popup .close").addEventListener("click", closeSingle);
   document.querySelector(".fullname").textContent = student.firstname + " " + student.nickname + " " + student.middlename + " " + student.lastname;
+
+  document.querySelector(".image").src = `images/${student.image}.png`;
 
   document.querySelector(".house").textContent = student.house;
 }
