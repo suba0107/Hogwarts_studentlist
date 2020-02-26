@@ -11,8 +11,8 @@ const Student = {
   middlename: "",
   nickname: "",
   image: "",
-  house: ""
-
+  house: "",
+  inq_squad: ""
   //TODO: Add prefect status and inquisitorial squad
 };
 
@@ -28,6 +28,7 @@ function start() {
   HTML.temp = document.querySelector("template");
   HTML.allStudents = [];
   HTML.currentStudentList = [];
+  HTML.expelledStudentList = [];
   HTML.search = " ";
 
   document.querySelectorAll(".filter").forEach(elm => {
