@@ -158,6 +158,9 @@ function filterStudents(filter, type) {
     const result = HTML.expelledStudentList;
     HTML.currentStudentList = result;
     return result;
+  } else if (settings.filter === "searching") {
+    const result = HTML.currentStudentList;
+    return result;
   } else {
     const result = HTML.allStudents.filter(filterFunction);
     HTML.currentStudentList = result;
@@ -268,6 +271,39 @@ function prepareObjects(jsonObjects) {
     }
     displayList(HTML.allStudents);
   });
+}
+document.querySelector("#search_text").addEventListener("input", searchFunction);
+
+function searchFunction() {
+  console.log("SearchFunction");
+  const inputField = document.querySelector("#search_text");
+  const inputValue = inputField.value;
+  console.log(HTML.allStudents.firstname);
+  inputValue.toLowerCase();
+  HTML.currentStudentList = [];
+  settings.filter = "searching";
+  HTML.allStudents.forEach(searching);
+
+  function searching(student) {
+    console.log(` Hej ${inputValue}`);
+    const firstNameLowerCase = student.firstname.toLowerCase();
+    const firstNameUpperCase = student.firstname.toUpperCase();
+    const lastNameLowerCase = student.firstname.toLowerCase();
+    const lastNameUpperCase = student.firstname.toUpperCase();
+
+    if (
+      firstNameLowerCase.includes(inputValue) ||
+      student.firstname.includes(inputValue) ||
+      firstNameUpperCase.includes(inputValue) ||
+      lastNameLowerCase.includes(inputValue) ||
+      student.lastname.includes(inputValue) ||
+      lastNameUpperCase.includes(inputValue)
+    ) {
+      HTML.currentStudentList.push(student);
+      console.log(HTML.currentStudentList);
+      buildList();
+    }
+  }
 }
 
 function displayImage(firstname, lastname) {
