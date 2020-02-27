@@ -321,6 +321,7 @@ function displayImage(firstname, lastname) {
 
 function displayList(student) {
   document.querySelector("#list").innerHTML = "";
+  showListInformation(student);
   student.forEach(displayStudent);
 }
 
@@ -343,6 +344,21 @@ function displayStudent(student) {
 
   //append clone to list
   HTML.list.appendChild(clone);
+}
+
+function showListInformation(list) {
+  console.log(list.length);
+  const gryf = filterStudents("gryffindor", "house");
+  const hufl = filterStudents("hufflepuff", "house");
+  const rave = filterStudents("ravenclaw", "house");
+  const slyt = filterStudents("slytherin", "house");
+  document.querySelector("#numberShown").textContent = `The list is currently showing ${list.length} students`;
+  document.querySelector("#attStudents").textContent = `Number of attending students: ${HTML.allStudents.length}`;
+  document.querySelector("#expStudents").textContent = `Number of expelled students: ${HTML.expelledStudentList.length}`;
+  document.querySelector("#gryf").textContent = `Gryffindor: ${gryf.length}`;
+  document.querySelector("#hufl").textContent = `Hufflepuff: ${hufl.length}`;
+  document.querySelector("#rave").textContent = `Ravenclaw: ${rave.length}`;
+  document.querySelector("#slyt").textContent = `Slytherin: ${slyt.length}`;
 }
 
 function showSingle(student) {
