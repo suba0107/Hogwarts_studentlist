@@ -4,6 +4,8 @@ window.addEventListener("DOMContentLoaded", start);
 const HTML = {};
 
 let studentHouse;
+const studenturl = "//petlatkea.dk/2020/hogwarts/students.json";
+const familyurl = "//petlatkea.dk/2020/hogwarts/families.json";
 
 const Student = {
   firstname: "",
@@ -12,7 +14,8 @@ const Student = {
   nickname: "",
   image: "",
   house: "",
-  inq_squad: "false"
+  inq_squad: "false",
+  blood_status: ""
   //TODO: Add prefect status and inquisitorial squad
 };
 
@@ -30,6 +33,8 @@ function start() {
   HTML.allStudents = [];
   HTML.currentStudentList = [];
   HTML.expelledStudentList = [];
+  HTML.pureBlood = [];
+  HTML.halfBlood = [];
   HTML.search = " ";
   document.querySelectorAll(`[data-action="filter"]`).forEach(elm => {
     elm.addEventListener("click", setFilterButton);
@@ -38,7 +43,15 @@ function start() {
   document.querySelectorAll(`[data-action="sort"]`).forEach(elm => {
     elm.addEventListener("click", setSortValue);
   });
-  getJson();
+
+  getJson(familyurl, prepareBloodStatus);
+}
+
+function prepareBloodStatus(familyList) {
+  HTML.pureBlood = familyList.pure;
+  HTML.halfBlood = familyList.half;
+
+  getJson(studenturl, prepareObjects);
 }
 
 function buildList() {
@@ -161,18 +174,21 @@ function filterStudents(filter, type) {
   }
 }
 
-async function getJson() {
-  let jsonData = await fetch("https://petlatkea.dk/2020/hogwarts/students.json");
+async function getJson(url, callback) {
+  let jsonData = await fetch(url);
   let jsonObjects = await jsonData.json();
   // showList();
   // themeSelector();
-  prepareObjects(jsonObjects);
+  // prepareObjects(jsonObjects);
+
+  callback(jsonObjects);
 }
 
 function prepareObjects(jsonObjects) {
   jsonObjects.forEach(jsonObject => {
     const student = Object.create(Student);
     HTML.allStudents.push(student);
+
     const fullName = jsonObject.fullname;
     let house = jsonObject.house;
     const houseToLowerCase = house.toLowerCase();
@@ -218,7 +234,23 @@ function prepareObjects(jsonObjects) {
     student.lastname = lastName;
     student.middlename = middleName;
     student.nickname = nickName;
-
+    student.bloodStatus = bloodStatus();
+    function bloodStatus() {
+      function checkBlood(list) {
+        return student.lastname == list;
+      }
+      const pure = HTML.pureBlood.some(checkBlood);
+      const half = HTML.halfBlood.some(checkBlood);
+      if (pure && half) {
+        return "Pureblood";
+      } else if (pure) {
+        return "Pureblood";
+      } else if (half) {
+        return "Halfblood";
+      } else {
+        return "Muggle-born";
+      }
+    }
     student.house = house.toLowerCase();
     if (student.middlename === "") {
       delete student.middlename;
@@ -231,7 +263,7 @@ function prepareObjects(jsonObjects) {
     }
     //console.log(student);
 
-    if (student.house === "slytherin") {
+    if (student.house === "slytherin" || student.bloodStatus === "Pureblood") {
       student.inq_squad = Student.inq_squad;
     }
     displayList(HTML.allStudents);
@@ -281,7 +313,7 @@ function showSingle(student) {
   document.querySelector("#popup").style.display = "flex";
   document.querySelector("#popup .close").addEventListener("click", closeSingle);
   document.querySelector(".fullname").textContent = student.firstname + " " + student.nickname + " " + student.middlename + " " + student.lastname;
-
+  document.querySelector(".bloodstatus").textContent = student.bloodStatus;
   document.querySelector(".image").src = `images/${student.image}.png`;
   document.querySelector(".house").textContent = student.house;
   document.querySelector(".expel").addEventListener("click", function expel() {
