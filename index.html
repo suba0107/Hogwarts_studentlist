@@ -15,13 +15,11 @@
       <section class="a_student">
         <article class="content">
           <img class="image" src="" alt="" />
-          <button id="make_prefect">Make prefect</button>
-          <p id="prefect">Prefect</p>
+          <p id="prefect"></p>
           <h2 class="fullname"></h2>
           <h3 class="house"></h3>
           <h3 class="bloodstatus"></h3>
           <img class="crest" src="" alt="" />
-          <button data-field="inqSquad">Add to the inq squad</button>
           <button class="expel">Expel student</button>
         </article>
       </section>
@@ -52,6 +50,7 @@
           <button class="filter" data-action="filter" data-type="house" data-filter="ravenclaw">Ravenclaw</button>
           <button class="filter" data-action="filter" data-type="house" data-filter="hufflepuff">Hufflepuff</button>
           <button class="filter" data-action="filter" data-type="house" data-filter="slytherin">Slytherin</button>
+          <button class="filter" data-action="filter" data-type="prefect" data-filter="true">Prefects</button>
         </div>
         <div id="shown">
           <p>Show:</p>
@@ -73,14 +72,36 @@
      
      
     </section>
-   
     <ul id="list"></ul>
   </section>
+
+  <div id="onlytwoprefects" class="dialogBox">
+    <div class="dialogContent">
+      <button class="closebtn">close</button>
+      <h1>You can only have two prefects in each house.</h1>
+      <h2>Do you want to replace a student?</h2>
+      <p><button data-action="remove1">remove</button> <span class="student1">NAME, the TYPE</span></p>
+      <p><button data-action="remove2">remove</button> <span class="student2">NAME, the TYPE</span></p>
+    </div>
+  </div>
+
+  <div id="onlyone" class="dialogBox">
+    <div class="dialogContent">
+      <button class="closebtn">close</button>
+      <h1>You can only have one prefect of each gender</h1>
+      <h2>Do you want to replace this student?</h2>
+      <p><button data-action="remove1">remove</button> <span class="student1">NAME, the TYPE</span></p>
+    </div>
+  </div>
+
     <template>
       <li>
         <article class="item">
           <h2 class="name"></h2>
           <h3 class="house"></h3>
+          <button data-field="makePrefect">Make prefect</button>
+          <button data-field="inqSquad">Add to the inq squad</button>
+          <button id="read_more">Read more</button>
         </article>
       </li>
     </template>

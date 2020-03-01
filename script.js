@@ -2,7 +2,7 @@
 window.addEventListener("DOMContentLoaded", start);
 
 const HTML = {};
-
+let hackTheSystemState = false;
 let studentHouse;
 const studenturl = "//petlatkea.dk/2020/hogwarts/students.json";
 const familyurl = "//petlatkea.dk/2020/hogwarts/families.json";
@@ -172,6 +172,8 @@ function filterStudents(filter, type) {
       return true;
     } else if (filter === "*") {
       return true;
+    } else if (filterType === true) {
+      return true;
     }
   }
 }
@@ -236,25 +238,10 @@ function prepareObjects(jsonObjects) {
     student.lastname = lastName;
     student.middlename = middleName;
     student.nickname = nickName;
-    student.bloodStatus = bloodStatus();
+    student.bloodStatus = bloodStatus(student);
     student.gender = jsonObject.gender;
     student.prefect = Student.prefect;
-    function bloodStatus() {
-      function checkBlood(list) {
-        return student.lastname == list;
-      }
-      const pure = HTML.pureBlood.some(checkBlood);
-      const half = HTML.halfBlood.some(checkBlood);
-      if (pure && half) {
-        return "Pureblood";
-      } else if (pure) {
-        return "Pureblood";
-      } else if (half) {
-        return "Halfblood";
-      } else {
-        return "Muggle-born";
-      }
-    }
+
     student.house = house.toLowerCase();
     if (student.middlename === "") {
       delete student.middlename;
@@ -274,6 +261,46 @@ function prepareObjects(jsonObjects) {
   });
 }
 document.querySelector("#search_text").addEventListener("input", searchFunction);
+function bloodStatus(student) {
+  function checkBlood(list) {
+    return student.lastname == list;
+  }
+  const pure = HTML.pureBlood.some(checkBlood);
+  const half = HTML.halfBlood.some(checkBlood);
+
+  if (hackTheSystemState) {
+    console.log("bloodstatus hacked");
+    if ((pure && half) || pure) {
+      const randomize = Math.floor(Math.random() * Math.floor(3));
+      console.log("randomize" + randomize);
+      if (randomize === 0) {
+        console.log("pureblood");
+        return "Pureblood";
+      } else if (randomize === 1) {
+        console.log("halfblood");
+        return "Halfblood";
+      } else if (randomize === 2) {
+        console.log("muggleborn");
+        return "Muggle born";
+      }
+    } else if (half) {
+      return "Pureblood";
+    } else {
+      return "Pureblood";
+    }
+  } else {
+    if (pure && half) {
+      console.log(" not hacked pureblood");
+      return "Pureblood";
+    } else if (pure) {
+      return "Pureblood";
+    } else if (half) {
+      return "Halfblood";
+    } else {
+      return "Muggle-born";
+    }
+  }
+}
 
 function searchFunction() {
   console.log("SearchFunction");
@@ -326,6 +353,9 @@ function displayList(student) {
 }
 
 function displayStudent(student) {
+  if (hackTheSystemState) {
+    student.bloodStatus = bloodStatus(student);
+  }
   //create clone
   const clone = HTML.temp.content.cloneNode(true);
   //set clone data
@@ -334,13 +364,60 @@ function displayStudent(student) {
 
   // TODO: Show prefect add and remove button
   // TODO addEventlisteners to button
-  clone.querySelector(".item").addEventListener("click", function clickList() {
+  clone.querySelector(".name").addEventListener("click", function clickList() {
     showSingle(student);
     themeSelector(student);
-    clone.querySelectorAll(".item").forEach(elm => {
+    clone.querySelectorAll(".name").forEach(elm => {
       elm.removeEventListener("click", clickList);
     });
   });
+
+  clone.querySelector("#read_more").addEventListener("click", function clickList() {
+    showSingle(student);
+    themeSelector(student);
+    clone.querySelectorAll("#read_more").forEach(elm => {
+      elm.removeEventListener("click", clickList);
+    });
+  });
+
+  if (student.prefect == true) {
+    console.log("wtf");
+    clone.querySelector("[data-field=makePrefect]").textContent = "Remove as prefect";
+  } else if (student.prefect == false) {
+    clone.querySelector("[data-field=makePrefect]").textContent = "Make prefect";
+  }
+  clone.querySelector("[data-field=makePrefect]").addEventListener("click", function clickPrefect() {
+    clone.querySelectorAll("[data-field=makePrefect]").forEach(elm => {
+      elm.removeEventListener("click", clickPrefect);
+    });
+    makePrefect(student);
+  });
+
+  squadHandler();
+  function squadHandler() {
+    if (student.inq_squad == true) {
+      clone.querySelector("[data-field=inqSquad]").textContent = "Remove from the inquisitorial squad";
+    } else if (student.inq_squad == false) {
+      clone.querySelector("[data-field=inqSquad]").textContent = "Add to the inquisitorial squad";
+    } else {
+      clone.querySelector("[data-field=inqSquad]").style.display = "none";
+    }
+
+    clone.querySelector(`[data-field="inqSquad"]`).addEventListener("click", function clickSquad() {
+      clone.querySelectorAll(`[data-field="winner"]`).forEach(elm => {
+        elm.removeEventListener("click", clickSquad);
+      });
+      squadToggle(student);
+    });
+  }
+
+  // console.log(student.prefect);
+  // if (student.prefect == true) {
+  //   console.log("wtf");
+  //   clone.querySelector("#make_prefect").textContent = "Remove as prefect";
+  // } else if (student.prefect == false) {
+  //   clone.querySelector("#make_prefect").textContent = "Hej";
+  // }
 
   //append clone to list
   HTML.list.appendChild(clone);
@@ -374,89 +451,133 @@ function showSingle(student) {
       expelStudent(student);
     }, 1000);
   });
-  squadHandler(student);
-  prefectHandler(student);
+
   document.querySelector("#popup .close").addEventListener("click", closeSingle);
 }
 
-function prefectHandler(student) {
-  console.log(student.firstname);
-
-  if (student.prefect === false) {
-    document.querySelector("#prefect").style.display = "none";
-  } else {
-    document.querySelector("#prefect").style.display = "inline-block";
-  }
-  document.querySelector("#make_prefect").addEventListener("click", function clickPrefect() {
-    document.querySelector("#make_prefect").removeEventListener("click", clickPrefect);
-
-    makePrefect(student);
-    console.log("click");
-  });
-}
 function makePrefect(student) {
   console.log("student house : " + student.house);
   const studentsInHouse = filterStudents(student.house, "house");
   console.log(studentsInHouse);
   const prefects = studentsInHouse.filter(checkStudent);
-  // const prefect1 = prefects.indexOf(prefects[0]);
-  // const prefect2 = prefects.indexOf(prefects[1]);
+  console.log("prefects" + prefects);
+  const prefect1 = HTML.allStudents.indexOf(prefects[0]);
+  console.log(prefect1);
+  const prefect2 = HTML.allStudents.indexOf(prefects[1]);
 
   console.log(prefects);
   function checkStudent(student) {
-    return student.prefect === true;
+    return student.prefect == true;
   }
   const sameGender = prefects.some(studentGender);
   function studentGender(prefects) {
     return prefects.gender == student.gender;
   }
 
-  if (student.prefect == true) {
+  if (student.prefect === true) {
     student.prefect = false;
-    document.querySelector("#prefect").style.display = "none";
+    buildList();
   } else if (sameGender == true) {
     console.log("is same gender " + sameGender);
     // alert("Der er allerede 1 dyr af samme type, der er vinder!");
-    // showDialogOneOfGender();
-    alert("Already a prefect of same gender!");
+    showDialogOneOfGender(student);
+    // alert("Already a prefect of same gender!");
   } else if (prefects.length > 1) {
-    // showDialogOnlyTwoPrefects();
+    showDialogOnlyTwoPrefects(student);
     console.log("already 2" + prefects.length);
-    alert("Already 2 prefects!");
   } else {
     student.prefect = true;
-    document.querySelector("#prefect").style.display = "inline-block";
+    buildList();
   }
-}
 
-function squadHandler(student) {
-  if (student.hasOwnProperty("inq_squad") === true) {
-    document.querySelector("[data-field=inqSquad]").style.display = "inline-block";
-    console.log("Hejhej");
-
-    if (student.inq_squad == true) {
-      document.querySelector("[data-field=inqSquad]").textContent = "Remove from the inquisitorial squad";
-    } else {
-      console.log("hej");
-      document.querySelector("[data-field=inqSquad]").textContent = "Add to the inquisitorial squad";
-    }
-    document.querySelector(`[data-field="inqSquad"]`).addEventListener("click", function clickSquad() {
-      document.querySelector(`[data-field="inqSquad"]`).removeEventListener("click", clickSquad);
-      squadToggle(student);
+  function showDialogOneOfGender(student) {
+    document.querySelector("#onlyone").classList.add("show");
+    document.querySelector("#onlyone .closebtn").addEventListener("click", function clickClose() {
+      document.querySelector("#onlyone").classList.remove("show");
+      document.querySelector("#onlyone .closebtn").removeEventListener("click", clickClose);
+      console.log("clicked");
     });
-  } else {
-    document.querySelector("[data-field=inqSquad]").style.display = "none";
+
+    if (prefects[0].gender === student.gender) {
+      console.log("post name" + prefects[0].firstname);
+      document.querySelector("#onlyone .student1").textContent = `${prefects[0].firstname} ${prefects[0].lastname}`;
+    } else if (prefects[1].gender === student.gender) {
+      console.log("post name" + prefects[1].firstname);
+      document.querySelector("#onlyone .student1").textContent = `${prefects[1].firstname} ${prefects[1].lastname}`;
+    }
+
+    document.querySelector("#onlyone [data-action=remove1]").addEventListener("click", clickRemove1);
+    function clickRemove1() {
+      document.querySelector("#onlyone [data-action=remove1]").removeEventListener("click", clickRemove1);
+      //   console.log(winners[0].winner);
+      if (prefects[0].gender == student.gender) {
+        console.log("Virk nu...");
+        console.log("Hej" + HTML.allStudents[prefect1]);
+        HTML.allStudents[prefect1].prefect = false;
+        student.prefect = true;
+      } else if (prefects[1].gender == student.gender) {
+        HTML.allStudents[prefect2].prefect = false;
+        student.prefect = true;
+        console.log("Kage");
+      }
+      document.querySelector("#onlyone").classList.remove("show");
+      buildList();
+    }
+  }
+
+  function showDialogOnlyTwoPrefects(student) {
+    console.log("showDialogOnlyTwoWinners");
+    document.querySelector("#onlytwoprefects").classList.add("show");
+    document.querySelector("#onlytwoprefects .closebtn").addEventListener("click", function closeBtn() {
+      document.querySelector("#onlytwoprefects .closebtn").removeEventListener("click", closeBtn);
+      document.querySelector("#onlytwoprefects").classList.remove("show");
+      console.log("clicked close");
+    });
+
+    document.querySelector("#onlytwoprefects .student1").textContent = `${prefects[0].firstname} ${prefects[0].lastname}`;
+    document.querySelector("#onlytwoprefects .student2").textContent = `${prefects[1].firstname} ${prefects[1].lastname}`;
+
+    document.querySelector("#onlytwoprefects [data-action=remove1]").addEventListener("click", remove1);
+    document.querySelector("#onlytwoprefects [data-action=remove2]").addEventListener("click", remove2);
+
+    function remove1() {
+      document.querySelector("#onlytwoprefects [data-action=remove1]").removeEventListener("click", remove1);
+      document.querySelector("#onlytwoprefects [data-action=remove2]").removeEventListener("click", remove2);
+      // document.querySelector("#onlyonekind [data-action=remove1]").removeEventListener("click", remove1);
+      console.log(HTML.allStudents[prefect1]);
+      HTML.allStudents[prefect1].prefect = false;
+      student.prefect = true;
+      document.querySelector("#onlytwoprefects").classList.remove("show");
+      // decideWinner(animal);
+      console.log("clicked remove 1");
+      buildList();
+    }
+
+    function remove2() {
+      document.querySelector("#onlytwoprefects [data-action=remove2]").removeEventListener("click", remove2);
+      document.querySelector("#onlytwoprefects [data-action=remove1]").removeEventListener("click", remove1);
+      // document.querySelector("#onlyonekind [data-action=remove1]").removeEventListener("click", remove2);
+      HTML.allStudents[prefect2].prefect = false;
+      student.prefect = true;
+      document.querySelector("#onlytwoprefects").classList.remove("show");
+      console.log("clicked remove 2");
+      buildList();
+    }
   }
 }
-
 function squadToggle(student) {
   if (student.inq_squad == true) {
     student.inq_squad = false;
     console.log("false");
   } else {
     student.inq_squad = true;
+    if (hackTheSystemState) {
+      setTimeout(function() {
+        student.inq_squad = false;
+        buildList();
+      }, 2000);
+    }
   }
-  squadHandler(student);
   buildList();
 }
 
@@ -469,4 +590,21 @@ function themeSelector(student) {
   document.querySelector(".content").dataset.selected = student.house.toLowerCase();
   document.querySelector(".close").dataset.selected = student.house.toLowerCase();
   document.querySelector(".crest").src = `crests/${student.house.toLowerCase()}.png`;
+}
+
+function hackTheSystem() {
+  hackTheSystemState = true;
+  const mySelf = {
+    firstname: "Subangi",
+    lastname: "Vasantharajan",
+    middlename: "",
+    nickname: "",
+    image: "",
+    house: "ravenclaw",
+    inq_squad: false,
+    prefect: false
+  };
+
+  HTML.allStudents.push(mySelf);
+  buildList();
 }
