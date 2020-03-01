@@ -2,10 +2,12 @@
 window.addEventListener("DOMContentLoaded", start);
 
 const HTML = {};
+
 let hackTheSystemState = false;
 let studentHouse;
-const studenturl = "//petlatkea.dk/2020/hogwarts/students.json";
-const familyurl = "//petlatkea.dk/2020/hogwarts/families.json";
+let allStudents = [];
+let currentStudentList = [];
+let expelledStudentList = [];
 
 const Student = {
   firstname: "",
@@ -22,6 +24,7 @@ const Student = {
 const settings = {
   filterType: null,
   filter: null,
+  filtering: null,
   sortBy: "firstname",
   sortDir: "asc",
   list: "attending"
@@ -30,11 +33,10 @@ const settings = {
 function start() {
   HTML.list = document.querySelector("#list");
   HTML.temp = document.querySelector("template");
-  HTML.allStudents = [];
-  HTML.currentStudentList = [];
-  HTML.expelledStudentList = [];
   HTML.pureBlood = [];
   HTML.halfBlood = [];
+  HTML.studenturl = "//petlatkea.dk/2020/hogwarts/students.json";
+  HTML.familyurl = "//petlatkea.dk/2020/hogwarts/families.json";
   HTML.search = " ";
   document.querySelectorAll(`[data-action="filter"]`).forEach(elm => {
     elm.addEventListener("click", setFilterButton);
@@ -44,154 +46,29 @@ function start() {
     elm.addEventListener("click", setSortValue);
   });
 
-  getJson(familyurl, prepareBloodStatus);
+  document.querySelector("#hack").addEventListener("click", hackTheSystem);
+  document.querySelector("#search_text").addEventListener("input", searchFunction);
+
+  getJson(HTML.familyurl, prepareBloodStatus);
 }
 
 function prepareBloodStatus(familyList) {
   HTML.pureBlood = familyList.pure;
   HTML.halfBlood = familyList.half;
 
-  getJson(studenturl, prepareObjects);
-}
-
-function buildList() {
-  let currentList = filterStudents(settings.filter, settings.filterType);
-  currentList = sortStudents(settings.sortBy);
-  displayList(currentList);
-}
-
-function expelStudent(student) {
-  const allStudents = HTML.allStudents;
-  const expelledArray = HTML.expelledStudentList;
-  console.log(HTML.expelledStudentList);
-  const index = allStudents.indexOf(student);
-  allStudents.splice(index, 1);
-  expelledArray.push(student);
-  console.log("expel");
-  buildList();
-}
-
-function setFilterButton() {
-  settings.filter = this.dataset.filter;
-  settings.filterType = this.dataset.type;
-  buildList();
-}
-
-function setShowButton() {
-  buildList();
-}
-
-function setSortValue() {
-  //TO DO: get the value(s) from the sort button clicked on
-  // ==> what to sort on
-  // ==> which direction
-
-  const sortBy = this.dataset.sort;
-  settings.sortBy = sortBy;
-
-  const sortDir = this.dataset.sortDirection;
-  settings.sortDir = sortDir;
-
-  toggleSortArrows(sortBy);
-}
-
-function toggleSortArrows(sortBy) {
-  //TO DO: Receive button and direction values
-  //if this button is not already sorted, set button values on every sort button to "sort" (call a clear function)
-  //set clicked button to "sorted"
-  // if already sorted and direction is set to "asc", set diretion to "desc" - else set direction to asc
-
-  let sortName = document.querySelector(`[data-sort="${sortBy}"]`);
-  if (sortName.dataset.action === "sort") {
-    clearAllSort();
-    sortName.dataset.action = "sorted";
-  } else {
-    if (sortName.dataset.sortDirection === "asc") {
-      sortName.dataset.sortDirection = "desc";
-      settings.sortDir = "desc";
-    } else {
-      sortName.dataset.sortDirection = "asc";
-      settings.sortDir = "asc";
-    }
-  }
-  buildList();
-}
-
-function sortStudents(sortBy) {
-  //Sort array using a compare function
-  let sortName = document.querySelector(`[data-sort="${sortBy}"]`);
-  const sortList = HTML.currentStudentList.sort(compareFunction);
-
-  function compareFunction(a, b) {
-    if (sortName.dataset.sortDirection == "asc") {
-      if (a[sortBy] < b[sortBy]) {
-        return -1;
-      } else {
-        return 1;
-      }
-    } else {
-      if (a[sortBy] > b[sortBy]) {
-        return -1;
-      } else {
-        return 1;
-      }
-    }
-  }
-
-  return sortList;
-  // filterStudents(button, type);
-}
-
-function clearAllSort() {
-  // set all buttons to "sort" instead of "sorted"
-
-  document.querySelectorAll(`[data-action="sorted"]`).forEach(botton => {
-    botton.dataset.action = "sort";
-  });
-}
-
-function filterStudents(filter, type) {
-  if (settings.filter === "expelled") {
-    console.log("expelled");
-    const result = HTML.expelledStudentList;
-    HTML.currentStudentList = result;
-    return result;
-  } else if (settings.filter === "searching") {
-    const result = HTML.currentStudentList;
-    return result;
-  } else {
-    const result = HTML.allStudents.filter(filterFunction);
-    HTML.currentStudentList = result;
-
-    return result;
-  }
-
-  function filterFunction(student) {
-    const filterType = student[type];
-    if (filterType == filter) {
-      return true;
-    } else if (filter === "*") {
-      return true;
-    } else if (filterType === true) {
-      return true;
-    }
-  }
+  getJson(HTML.studenturl, prepareObjects);
 }
 
 async function getJson(url, callback) {
   let jsonData = await fetch(url);
   let jsonObjects = await jsonData.json();
-  // showList();
-  // themeSelector();
-  // prepareObjects(jsonObjects);
-
   callback(jsonObjects);
 }
 
 function prepareObjects(jsonObjects) {
   jsonObjects.forEach(jsonObject => {
     const student = Object.create(Student);
-    HTML.allStudents.push(student);
+    allStudents.push(student);
 
     const fullName = jsonObject.fullname;
     let house = jsonObject.house;
@@ -233,7 +110,6 @@ function prepareObjects(jsonObjects) {
     const middleName = middleNameJoin.replace(",", " ");
     const nickName = nickNameTrimmed.charAt(0).toUpperCase() + nickNameTrimmed.slice(1);
 
-    student.image = displayImage(firstName, lastName);
     student.firstname = firstName;
     student.lastname = lastName;
     student.middlename = middleName;
@@ -252,7 +128,6 @@ function prepareObjects(jsonObjects) {
     if (student.lastname === "") {
       delete student.lastName;
     }
-    //console.log(student);
 
     if (student.house === "slytherin" || student.bloodStatus === "Pureblood") {
       student.inq_squad = Student.inq_squad;
@@ -260,8 +135,157 @@ function prepareObjects(jsonObjects) {
     buildList();
   });
 }
-document.querySelector("#search_text").addEventListener("input", searchFunction);
+
+function expelStudent(student) {
+  console.log("Student" + student.firstname);
+  console.log(expelledStudentList);
+  const index = allStudents.indexOf(student);
+  console.log(index);
+  allStudents.splice(index, 1);
+  expelledStudentList.push(student);
+  console.log("expel");
+  buildList();
+}
+
+// Set buttons from eventlisteners
+function setFilterButton() {
+  settings.filter = this.dataset.filter;
+  settings.filterType = this.dataset.type;
+  buildList();
+}
+
+function setShowButton() {
+  buildList();
+}
+
+//FIltering, sorting and search functions
+
+function setSortValue() {
+  //TO DO: get the value(s) from the sort button clicked on
+  // ==> what to sort on
+  // ==> which direction
+
+  const sortBy = this.dataset.sort;
+  settings.sortBy = sortBy;
+
+  const sortDir = this.dataset.sortDirection;
+  settings.sortDir = sortDir;
+
+  toggleSort(sortBy);
+}
+
+function toggleSort(sortBy) {
+  //Receives button and direction values
+  //if this button is not already sorted, set button values on every sort button to "sort" (call a clear function)
+  //set clicked button to "sorted"
+  // if already sorted and direction is set to "asc", set diretion to "desc" - else set direction to asc
+
+  let sortName = document.querySelector(`[data-sort="${sortBy}"]`);
+  if (sortName.dataset.action === "sort") {
+    clearAllSort();
+    sortName.dataset.action = "sorted";
+  } else {
+    if (sortName.dataset.sortDirection === "asc") {
+      sortName.dataset.sortDirection = "desc";
+      settings.sortDir = "desc";
+    } else {
+      sortName.dataset.sortDirection = "asc";
+      settings.sortDir = "asc";
+    }
+  }
+  buildList();
+}
+
+function sortStudents(sortBy) {
+  //Sort array using a compare function
+  let sortName = document.querySelector(`[data-sort="${sortBy}"]`);
+  const sortList = currentStudentList.sort(compareFunction);
+
+  function compareFunction(a, b) {
+    if (sortName.dataset.sortDirection == "asc") {
+      if (a[sortBy] < b[sortBy]) {
+        return -1;
+      } else {
+        return 1;
+      }
+    } else {
+      if (a[sortBy] > b[sortBy]) {
+        return -1;
+      } else {
+        return 1;
+      }
+    }
+  }
+
+  return sortList;
+}
+
+function clearAllSort() {
+  // set all buttons to "sort" instead of "sorted"
+
+  document.querySelectorAll(`[data-action="sorted"]`).forEach(botton => {
+    botton.dataset.action = "sort";
+  });
+}
+
+function filterStudents(filter, type) {
+  if (settings.filter === "expelled") {
+    console.log("expelled");
+    const result = expelledStudentList;
+    currentStudentList = result;
+    return result;
+  } else if (settings.filtering === "searching") {
+    const result = currentStudentList.filter(filterFunction);
+    return result;
+  } else {
+    const result = allStudents.filter(filterFunction);
+    currentStudentList = result;
+
+    return result;
+  }
+
+  function filterFunction(student) {
+    const filterType = student[type];
+    if (filterType == filter) {
+      return true;
+    } else if (filter === "*") {
+      return true;
+    } else if (filterType === true) {
+      return true;
+    }
+  }
+}
+
+function searchFunction() {
+  const inputValue = this.value;
+  inputValue.toLowerCase();
+  currentStudentList = [];
+  settings.filtering = "searching";
+  allStudents.forEach(searching);
+
+  function searching(student) {
+    const firstNameLowerCase = student.firstname.toLowerCase();
+    const firstNameUpperCase = student.firstname.toUpperCase();
+    const lastNameLowerCase = student.firstname.toLowerCase();
+    const lastNameUpperCase = student.firstname.toUpperCase();
+
+    if (
+      firstNameLowerCase.includes(inputValue) ||
+      student.firstname.includes(inputValue) ||
+      firstNameUpperCase.includes(inputValue) ||
+      lastNameLowerCase.includes(inputValue) ||
+      student.lastname.includes(inputValue) ||
+      lastNameUpperCase.includes(inputValue)
+    ) {
+      currentStudentList.push(student);
+      buildList();
+    }
+  }
+}
+
 function bloodStatus(student) {
+  // if the system is hacked, then randomize the blood status of the poorbloods, and make all half bloods and muggle borns pureblood.
+  // else see if the students last name is in both lists. If yes then make the student poorblood. If the student is in the poorblood list, then make the student poorblood. If the student is only in the half blood list, make the student half blood, and if the student is in either list, make the student muggle born.
   function checkBlood(list) {
     return student.lastname == list;
   }
@@ -269,7 +293,6 @@ function bloodStatus(student) {
   const half = HTML.halfBlood.some(checkBlood);
 
   if (hackTheSystemState) {
-    console.log("bloodstatus hacked");
     if ((pure && half) || pure) {
       const randomize = Math.floor(Math.random() * Math.floor(3));
       console.log("randomize" + randomize);
@@ -302,48 +325,26 @@ function bloodStatus(student) {
   }
 }
 
-function searchFunction() {
-  console.log("SearchFunction");
-  const inputValue = this.value;
-  console.log(HTML.allStudents.firstname);
-  inputValue.toLowerCase();
-  HTML.currentStudentList = [];
-  settings.filter = "searching";
-  HTML.allStudents.forEach(searching);
-
-  function searching(student) {
-    console.log(` Hej ${inputValue}`);
-    const firstNameLowerCase = student.firstname.toLowerCase();
-    const firstNameUpperCase = student.firstname.toUpperCase();
-    const lastNameLowerCase = student.firstname.toLowerCase();
-    const lastNameUpperCase = student.firstname.toUpperCase();
-
-    if (
-      firstNameLowerCase.includes(inputValue) ||
-      student.firstname.includes(inputValue) ||
-      firstNameUpperCase.includes(inputValue) ||
-      lastNameLowerCase.includes(inputValue) ||
-      student.lastname.includes(inputValue) ||
-      lastNameUpperCase.includes(inputValue)
-    ) {
-      HTML.currentStudentList.push(student);
-      console.log(HTML.currentStudentList);
-      buildList();
-    }
+function displayImage(student) {
+  let lastName = student.lastname.toLowerCase();
+  let firstName = student.firstname[0].toLowerCase();
+  const sameLastName = allStudents.filter(list => list.lastname == student.lastname);
+  const hyphen = student.lastname.indexOf("-");
+  if (sameLastName.length > 1) {
+    firstName = student.firstname.toLowerCase();
+  } else if (hyphen > -1) {
+    lastName = student.lastname.substring(hyphen + 1, student.lastname.length).toLowerCase();
   }
-}
 
-function displayImage(firstname, lastname) {
-  const lastName = lastname.toLowerCase();
-  let firstName = firstname[0].toLowerCase();
-  if (firstname === "Padma") {
-    firstName = "padme";
-  } else if (firstname === "Parvati") {
-    firstName = "parvati";
-  }
   let filename = `${lastName}_${firstName}`;
 
   return filename;
+}
+
+function buildList() {
+  let currentList = filterStudents(settings.filter, settings.filterType);
+  currentList = sortStudents(settings.sortBy);
+  displayList(currentList);
 }
 
 function displayList(student) {
@@ -356,35 +357,29 @@ function displayStudent(student) {
   if (hackTheSystemState) {
     student.bloodStatus = bloodStatus(student);
   }
+  student.image = displayImage(student);
   //create clone
   const clone = HTML.temp.content.cloneNode(true);
   //set clone data
   clone.querySelector(".name").textContent = student.firstname + " " + student.lastname;
-  clone.querySelector(".house").textContent = student.house;
+  const house = student.house.charAt(0).toUpperCase() + student.house.slice(1);
+  clone.querySelector(".house").textContent = house;
 
-  // TODO: Show prefect add and remove button
-  // TODO addEventlisteners to button
-  clone.querySelector(".name").addEventListener("click", function clickList() {
+  clone.querySelector("#clickArea").addEventListener("click", function clickName() {
     showSingle(student);
-    themeSelector(student);
-    clone.querySelectorAll(".name").forEach(elm => {
-      elm.removeEventListener("click", clickList);
+    clone.querySelectorAll("#clickArea").forEach(elm => {
+      elm.removeEventListener("click", clickName);
     });
   });
 
-  clone.querySelector("#read_more").addEventListener("click", function clickList() {
-    showSingle(student);
-    themeSelector(student);
-    clone.querySelectorAll("#read_more").forEach(elm => {
-      elm.removeEventListener("click", clickList);
-    });
-  });
+  clone.querySelector("#prefect").dataset.house = student.house;
 
   if (student.prefect == true) {
-    console.log("wtf");
     clone.querySelector("[data-field=makePrefect]").textContent = "Remove as prefect";
+    clone.querySelector("#prefect").style.display = "inline-block";
   } else if (student.prefect == false) {
     clone.querySelector("[data-field=makePrefect]").textContent = "Make prefect";
+    clone.querySelector("#prefect").style.display = "none";
   }
   clone.querySelector("[data-field=makePrefect]").addEventListener("click", function clickPrefect() {
     clone.querySelectorAll("[data-field=makePrefect]").forEach(elm => {
@@ -392,15 +387,20 @@ function displayStudent(student) {
     });
     makePrefect(student);
   });
-
   squadHandler();
+
   function squadHandler() {
-    if (student.inq_squad == true) {
-      clone.querySelector("[data-field=inqSquad]").textContent = "Remove from the inquisitorial squad";
-    } else if (student.inq_squad == false) {
-      clone.querySelector("[data-field=inqSquad]").textContent = "Add to the inquisitorial squad";
+    if (student.hasOwnProperty("inq_squad")) {
+      if (student.inq_squad === true) {
+        clone.querySelector("[data-field=inqSquad]").textContent = "Remove from the inquisitorial squad";
+        clone.querySelector("#inqSquad").style.display = "inline-block";
+      } else if (student.inq_squad === false) {
+        clone.querySelector("[data-field=inqSquad]").textContent = "Add to the inquisitorial squad";
+        clone.querySelector("#inqSquad").style.display = "none";
+      }
     } else {
       clone.querySelector("[data-field=inqSquad]").style.display = "none";
+      clone.querySelector("#inqSquad").style.display = "none";
     }
 
     clone.querySelector(`[data-field="inqSquad"]`).addEventListener("click", function clickSquad() {
@@ -411,13 +411,28 @@ function displayStudent(student) {
     });
   }
 
-  // console.log(student.prefect);
-  // if (student.prefect == true) {
-  //   console.log("wtf");
-  //   clone.querySelector("#make_prefect").textContent = "Remove as prefect";
-  // } else if (student.prefect == false) {
-  //   clone.querySelector("#make_prefect").textContent = "Hej";
-  // }
+  // if the user is trying to expel Subangi, then show a dialog box.
+  // else remove the student from the list and move them to the list with expelled students.
+  clone.querySelector(".expel").addEventListener("click", function expel() {
+    if (student.firstname === "Subangi") {
+      clone.querySelector("#hackDialog").classList.add("show");
+      clone.querySelector("#hackDialog .closebtn").addEventListener("click", function closeBtn() {
+        clone.querySelector("#hackDialog .closebtn").removeEventListener("click", closeBtn);
+        clone.querySelector("#hackDialog").classList.remove("show");
+        clone.querySelectorAll(".expel").forEach(elm => {
+          elm.removeEventListener("click", expel);
+        });
+      });
+    } else {
+      console.log(student);
+      clone.querySelectorAll(".expel").forEach(elm => {
+        elm.removeEventListener("click", expel);
+      });
+      setTimeout(function expelStudentTimed() {
+        expelStudent(student);
+      }, 500);
+    }
+  });
 
   //append clone to list
   HTML.list.appendChild(clone);
@@ -428,44 +443,56 @@ function showListInformation(list) {
   const hufl = filterStudents("hufflepuff", "house");
   const rave = filterStudents("ravenclaw", "house");
   const slyt = filterStudents("slytherin", "house");
-  document.querySelector("#numberShown").textContent = `The list is currently showing ${list.length} students`;
-  document.querySelector("#attStudents").textContent = `Number of attending students: ${HTML.allStudents.length}`;
-  document.querySelector("#expStudents").textContent = `Number of expelled students: ${HTML.expelledStudentList.length}`;
-  document.querySelector("#gryf").textContent = `Gryffindor: ${gryf.length}`;
-  document.querySelector("#hufl").textContent = `Hufflepuff: ${hufl.length}`;
-  document.querySelector("#rave").textContent = `Ravenclaw: ${rave.length}`;
-  document.querySelector("#slyt").textContent = `Slytherin: ${slyt.length}`;
+  document.querySelector("#numberShown").textContent = `The list is showing ${list.length} students`;
+  document.querySelector(`[data-filter="*"]`).textContent = `Attending students (${allStudents.length})`;
+  document.querySelector(`[data-filter="expelled"]`).textContent = `Expelled (${expelledStudentList.length})`;
+  document.querySelector(`[data-filter="gryffindor"]`).textContent = `Gryffindor (${gryf.length})`;
+  document.querySelector(`[data-filter="ravenclaw"]`).textContent = `Hufflepuff (${hufl.length})`;
+  document.querySelector(`[data-filter="hufflepuff"]`).textContent = `Ravenclaw (${rave.length})`;
+  document.querySelector(`[data-filter="slytherin"]`).textContent = `Slytherin (${slyt.length})`;
 }
 
 function showSingle(student) {
+  console.log(student);
+  themeSelector(student);
   document.querySelector("#popup").style.display = "flex";
   document.querySelector(".fullname").textContent = student.firstname + " " + student.nickname + " " + student.middlename + " " + student.lastname;
   document.querySelector(".bloodstatus").textContent = student.bloodStatus;
   document.querySelector(".image").src = `images/${student.image}.png`;
-  document.querySelector(".house").textContent = student.house;
-  document.querySelector(".expel").addEventListener("click", function expel() {
-    closeSingle();
-    buildList();
-    document.querySelector(".expel").removeEventListener("click", expel);
-    setTimeout(() => {
-      expelStudent(student);
-    }, 1000);
-  });
+  const house = student.house.charAt(0).toUpperCase() + student.house.slice(1);
+  document.querySelector(".house").textContent = house;
 
+  document.querySelector("#prefectSingle").dataset.house = student.house;
+
+  if (student.prefect == true) {
+    document.querySelector("#prefectSingle").style.display = "inline-block";
+  } else if (student.prefect == false) {
+    document.querySelector("#prefectSingle").style.display = "none";
+  }
+
+  if (student.hasOwnProperty("inq_squad")) {
+    if (student.inq_squad === true) {
+      document.querySelector("#inqSquadSingle").style.display = "inline-block";
+    } else if (student.inq_squad === false) {
+      document.querySelector("#inqSquadSingle").style.display = "none";
+    }
+  } else {
+    document.querySelector("#inqSquadSingle").style.display = "none";
+  }
   document.querySelector("#popup .close").addEventListener("click", closeSingle);
 }
 
 function makePrefect(student) {
-  console.log("student house : " + student.house);
-  const studentsInHouse = filterStudents(student.house, "house");
-  console.log(studentsInHouse);
-  const prefects = studentsInHouse.filter(checkStudent);
-  console.log("prefects" + prefects);
-  const prefect1 = HTML.allStudents.indexOf(prefects[0]);
-  console.log(prefect1);
-  const prefect2 = HTML.allStudents.indexOf(prefects[1]);
+  //if the student is prefect already, remove the prefect badge.
+  // else see if there's already a prefect with same gender in the house. If yes, then show a dialog box where the user have to choose whether they would like to replace the current prefect or not.
+  // if no, then see if there is two prefects in the same house.
+  //if yes, then then show a dialog box where the user have to choose whether they would like to replace one of the current prefects or not.
+  // if no, make the student prefect.
 
-  console.log(prefects);
+  const studentsInHouse = filterStudents(student.house, "house");
+  const prefects = studentsInHouse.filter(checkStudent);
+  const prefect1 = allStudents.indexOf(prefects[0]);
+  const prefect2 = allStudents.indexOf(prefects[1]);
   function checkStudent(student) {
     return student.prefect == true;
   }
@@ -478,13 +505,9 @@ function makePrefect(student) {
     student.prefect = false;
     buildList();
   } else if (sameGender == true) {
-    console.log("is same gender " + sameGender);
-    // alert("Der er allerede 1 dyr af samme type, der er vinder!");
     showDialogOneOfGender(student);
-    // alert("Already a prefect of same gender!");
   } else if (prefects.length > 1) {
     showDialogOnlyTwoPrefects(student);
-    console.log("already 2" + prefects.length);
   } else {
     student.prefect = true;
     buildList();
@@ -495,28 +518,22 @@ function makePrefect(student) {
     document.querySelector("#onlyone .closebtn").addEventListener("click", function clickClose() {
       document.querySelector("#onlyone").classList.remove("show");
       document.querySelector("#onlyone .closebtn").removeEventListener("click", clickClose);
-      console.log("clicked");
     });
 
     if (prefects[0].gender === student.gender) {
-      console.log("post name" + prefects[0].firstname);
       document.querySelector("#onlyone .student1").textContent = `${prefects[0].firstname} ${prefects[0].lastname}`;
     } else if (prefects[1].gender === student.gender) {
-      console.log("post name" + prefects[1].firstname);
       document.querySelector("#onlyone .student1").textContent = `${prefects[1].firstname} ${prefects[1].lastname}`;
     }
 
     document.querySelector("#onlyone [data-action=remove1]").addEventListener("click", clickRemove1);
     function clickRemove1() {
       document.querySelector("#onlyone [data-action=remove1]").removeEventListener("click", clickRemove1);
-      //   console.log(winners[0].winner);
       if (prefects[0].gender == student.gender) {
-        console.log("Virk nu...");
-        console.log("Hej" + HTML.allStudents[prefect1]);
-        HTML.allStudents[prefect1].prefect = false;
+        allStudents[prefect1].prefect = false;
         student.prefect = true;
       } else if (prefects[1].gender == student.gender) {
-        HTML.allStudents[prefect2].prefect = false;
+        allStudents[prefect2].prefect = false;
         student.prefect = true;
         console.log("Kage");
       }
@@ -543,12 +560,10 @@ function makePrefect(student) {
     function remove1() {
       document.querySelector("#onlytwoprefects [data-action=remove1]").removeEventListener("click", remove1);
       document.querySelector("#onlytwoprefects [data-action=remove2]").removeEventListener("click", remove2);
-      // document.querySelector("#onlyonekind [data-action=remove1]").removeEventListener("click", remove1);
-      console.log(HTML.allStudents[prefect1]);
-      HTML.allStudents[prefect1].prefect = false;
+      console.log(allStudents[prefect1]);
+      allStudents[prefect1].prefect = false;
       student.prefect = true;
       document.querySelector("#onlytwoprefects").classList.remove("show");
-      // decideWinner(animal);
       console.log("clicked remove 1");
       buildList();
     }
@@ -556,8 +571,7 @@ function makePrefect(student) {
     function remove2() {
       document.querySelector("#onlytwoprefects [data-action=remove2]").removeEventListener("click", remove2);
       document.querySelector("#onlytwoprefects [data-action=remove1]").removeEventListener("click", remove1);
-      // document.querySelector("#onlyonekind [data-action=remove1]").removeEventListener("click", remove2);
-      HTML.allStudents[prefect2].prefect = false;
+      allStudents[prefect2].prefect = false;
       student.prefect = true;
       document.querySelector("#onlytwoprefects").classList.remove("show");
       console.log("clicked remove 2");
@@ -565,6 +579,7 @@ function makePrefect(student) {
     }
   }
 }
+
 function squadToggle(student) {
   if (student.inq_squad == true) {
     student.inq_squad = false;
@@ -572,6 +587,7 @@ function squadToggle(student) {
   } else {
     student.inq_squad = true;
     if (hackTheSystemState) {
+      //When the system is hacked remove a student from the inquisitorial squad when they are added.
       setTimeout(function() {
         student.inq_squad = false;
         buildList();
@@ -583,7 +599,10 @@ function squadToggle(student) {
 
 function closeSingle() {
   document.querySelector("#popup").style.display = "none";
-  document.querySelector("#popup .close").removeEventListener("click", closeSingle);
+  document.querySelectorAll("#popup .close").forEach(elm => {
+    elm.removeEventListener("click", closeSingle);
+  });
+  buildList();
 }
 
 function themeSelector(student) {
@@ -593,6 +612,8 @@ function themeSelector(student) {
 }
 
 function hackTheSystem() {
+  // when this function is called, set the state to true.
+  // make an object with my name and push into the list.
   hackTheSystemState = true;
   const mySelf = {
     firstname: "Subangi",
@@ -605,6 +626,6 @@ function hackTheSystem() {
     prefect: false
   };
 
-  HTML.allStudents.push(mySelf);
+  allStudents.push(mySelf);
   buildList();
 }

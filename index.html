@@ -15,34 +15,28 @@
       <section class="a_student">
         <article class="content">
           <img class="image" src="" alt="" />
-          <p id="prefect"></p>
           <h2 class="fullname"></h2>
+          <span id="prefectSingle" class="prefectBadge">P</span>
+          <span id="inqSquadSingle" class="inqSquadBadge">I</span>
           <h3 class="house"></h3>
           <h3 class="bloodstatus"></h3>
-          <img class="crest" src="" alt="" />
-          <button class="expel">Expel student</button>
+          <div class="crestWrapper">
+            <img class="crest" src="" alt="" />
+          </div>
         </article>
       </section>
     </div>
 
     <header>
       <h1>Student list at Hogwarts</h1>
+      <p id="numberShown">The list is showing x students</p>
     </header>
 
     <section id="list_section">
-      
       <article id="list_information">
-        <p id="numberShown">The list is currently showing x students</p>
-        <div>
-        <p>Number of students in: </p>
-        <p id="gryf">Gryffindor: </p>
-        <p id="hufl">Hufflepuff: </p>
-        <p id="rave">Ravenclaw: </p>
-        <p id="slyt">Slytherin: </p></div>
-        <p id="attStudents">Number of attending students:</p>
-        <p id="expStudents">Number of expelled students:</p>
-
-      </div>
+        <article id="search">
+          <input type="text" placeholder="Search by name" id="search_text" />
+        </article>
 
         <div id="filterGroup">
           <p>Filter by:</p>
@@ -52,6 +46,7 @@
           <button class="filter" data-action="filter" data-type="house" data-filter="slytherin">Slytherin</button>
           <button class="filter" data-action="filter" data-type="prefect" data-filter="true">Prefects</button>
         </div>
+
         <div id="shown">
           <p>Show:</p>
           <button class="filter" data-action="filter" data-type="status" data-filter="expelled">Expelled students</button>
@@ -65,43 +60,54 @@
           <button data-action="sort" data-sort-direction="asc" data-sort="house">House</button>
         </div>
       </article>
-
-      <article id="search">
-        <input type="text" placeholder="search" id="search_text" />
-      </article>
-     
-     
     </section>
+
     <ul id="list"></ul>
-  </section>
 
-  <div id="onlytwoprefects" class="dialogBox">
-    <div class="dialogContent">
-      <button class="closebtn">close</button>
-      <h1>You can only have two prefects in each house.</h1>
-      <h2>Do you want to replace a student?</h2>
-      <p><button data-action="remove1">remove</button> <span class="student1">NAME, the TYPE</span></p>
-      <p><button data-action="remove2">remove</button> <span class="student2">NAME, the TYPE</span></p>
-    </div>
-  </div>
+    <button id="hack">Post New Educational Decree</button>
 
-  <div id="onlyone" class="dialogBox">
-    <div class="dialogContent">
-      <button class="closebtn">close</button>
-      <h1>You can only have one prefect of each gender</h1>
-      <h2>Do you want to replace this student?</h2>
-      <p><button data-action="remove1">remove</button> <span class="student1">NAME, the TYPE</span></p>
+    <div id="onlytwoprefects" class="dialogBox">
+      <div class="dialogContent">
+        <button class="closebtn">close</button>
+        <h1>You can only have two prefects in each house.</h1>
+        <h2>Do you want to replace a student?</h2>
+        <p><button data-action="remove1">Remove</button> <span class="student1">NAME, the TYPE</span></p>
+        <p><button data-action="remove2">Remove</button> <span class="student2">NAME, the TYPE</span></p>
+      </div>
     </div>
-  </div>
+
+    <div id="onlyone" class="dialogBox">
+      <div class="dialogContent">
+        <button class="closebtn">close</button>
+        <h1>You can only have one prefect of each gender</h1>
+        <h2>Do you want to replace this student?</h2>
+        <p><button data-action="remove1">Remove</button> <span class="student1">NAME, the TYPE</span></p>
+      </div>
+    </div>
+
+    <div id="hackDialog" class="dialogBox">
+      <div class="dialogContent">
+        <button class="closebtn">close</button>
+        <h1>YOU CANNOT EXPEL THIS STUDENT!!!</h1>
+      </div>
+    </div>
 
     <template>
       <li>
         <article class="item">
-          <h2 class="name"></h2>
-          <h3 class="house"></h3>
-          <button data-field="makePrefect">Make prefect</button>
-          <button data-field="inqSquad">Add to the inq squad</button>
-          <button id="read_more">Read more</button>
+          <div id="clickArea">
+            <div class="nameDisplay">
+              <h2 class="name"></h2>
+              <span id="prefect" class="prefectBadge">P</span>
+              <span id="inqSquad" class="inqSquadBadge">I</span>
+            </div>
+            <h3 class="house"></h3>
+          </div>
+          <div id="buttonGroup">
+            <button data-field="makePrefect">Make prefect</button>
+            <button data-field="inqSquad">Add to the inq squad</button>
+            <button class="expel">Expel student</button>
+          </div>
         </article>
       </li>
     </template>
